@@ -8,6 +8,7 @@ import (
 type (
 	Config struct {
 		Environment string
+		Logger      LoggerConfig
 		FileStorage S3Config
 		HTTP        HTTPConfig
 		JWT         JWTConfig
@@ -15,6 +16,10 @@ type (
 		Admin       AdminConfig
 		Redis       RedisConfig
 		Proxy       ProxyConfig
+		VPN         VPNConfig
+	}
+
+	LoggerConfig struct {
 	}
 
 	S3Config struct {
@@ -43,9 +48,9 @@ type (
 	}
 
 	AdminConfig struct {
+		ID       string
 		Login    string
 		Password string
-		ID       string
 	}
 
 	RedisConfig struct {
@@ -57,33 +62,63 @@ type (
 		Host string
 		Port string
 	}
+
+	VPNConfig struct {
+		Host     string
+		Port     string
+		Login    string
+		Password string
+	}
 )
 
-func Init(uip string, configPath string) (*Config, error) {
+func Init(uip *string, configPath *string) (*Config, error) {
 
-	if len(uip) >= 0 {
-		pCfg, err := uipSetup(uip)
+	// UIP
+	if len(*uip) >= 0 {
+		cfg, err := uipSetup(uip)
 		if err != nil {
 			return nil, err
 		}
-
-		return pCfg, nil
+		return cfg, nil
 	}
 
-	if len(uip) >= 0 && len(configPath) > 0 {
-		// TODO viper set config
-		//return pCfg, nil
+	// JSON Config
+	if len(*uip) >= 0 && len(*configPath) > 0 {
+		cfg, err := getJSONConfig(configPath)
+		if err != nil {
+			return nil, err
+		}
+		return cfg, nil
 	}
 
-	return nil, errors.New("config keys not set")
+	// Else return error
+	return nil, errors.New("config keys error")
 }
 
-func uipSetup(uip string) (*Config, error) {
+// Load config via UIP protocol
+func uipSetup(uip *string) (*Config, error) {
 	//var cfg Config
 
 	// TODO uip get config
+	// func AddSecureRemoteProvider (viper)
 
 	return nil, errors.New("uip not available")
+
+	//return &cfg, nil
+}
+
+// Load config via JSON file
+func getJSONConfig(configPath *string) (*Config, error) {
+	//var cfg Config
+
+	// TODO JSON config load
+
+	//s := strings.Split(*configPath, "/")
+	//viper.SetConfigName(s[len(s)-1])
+	// не включать расширение
+	// TODO заменить везде configPath на configName и фиксировать папку конфигураций
+
+	return nil, errors.New("son config not available")
 
 	//return &cfg, nil
 }
